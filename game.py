@@ -11,7 +11,6 @@ class Color(StrEnum):
     # MAGENTA = '\033[35m'
     # CYAN = '\033[36m'
     WHITE = '\033[37m'
-    # DEFAULT = '\033[0m'
 
 
 class Cell:
@@ -27,7 +26,7 @@ class Game:
         colors = list(Color)
         wgts = [len(colors) - 1 if c == Color.BLACK else life_chance for c in colors]
         self.grid = [[Cell(c) for c in choices(colors, wgts, k=x)] for _ in range(y)]
-        # self.update()
+        self.update()
 
     def update(self):
         # starting with all dead means we don't have to kill cells manually
