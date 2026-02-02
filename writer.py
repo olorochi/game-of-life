@@ -8,7 +8,7 @@ class ANSI(StrEnum):
 
 
 class Writer:
-    def __init__():
+    def save_pos():
         print(ANSI.SAVE_POS)
 
     def draw(grid):

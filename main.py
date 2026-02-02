@@ -3,12 +3,10 @@ from game import Game
 from writer import Writer
 
 
-GRID_HEIGHT = 40
-GRID_WIDTH = 80
-LIFE_CHANCE = 0.3
 DELAY = 0.5
 
-game = Game(GRID_WIDTH, GRID_HEIGHT, LIFE_CHANCE)
+game = Game(LIFE_CHANCE)
+Writer.save_pos()
 Writer.draw(game.grid)
 
 while (True):
