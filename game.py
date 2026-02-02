@@ -1,4 +1,4 @@
-from random import choices
+import random
 from enum import StrEnum
 
 
@@ -25,7 +25,7 @@ class Game:
     def __init__(self, x, y, life_chance):
         colors = list(Color)
         wgts = [len(colors) - 1 if c == Color.BLACK else life_chance for c in colors]
-        self.grid = [[Cell(c) for c in choices(colors, wgts, k=x)] for _ in range(y)]
+        self.grid = [[Cell(c) for c in random.choices(colors, wgts, k=x)] for _ in range(y)]
         self.update()
 
     def update(self):
@@ -61,5 +61,6 @@ class Game:
                     colors[it.color] += 1
 
         n = sum(colors.values())
-        color = max(colors, key=colors.get)
+        high = max(colors.values())
+        color = random.choice([c for c, v in colors.items() if v == high])
         return color, n
