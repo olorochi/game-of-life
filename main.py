@@ -5,7 +5,7 @@ from writer import Writer
 
 DELAY = 0.5
 
-game = Game(LIFE_CHANCE)
+game = Game()
 Writer.save_pos()
 Writer.draw(game.grid)
 
