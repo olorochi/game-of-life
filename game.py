@@ -5,8 +5,8 @@ from copy import copy
 
 
 CHUNK_Y = 40
-CHUNK_X = 80
-LIFE_CHANCE = 0.2
+CHUNK_X = CHUNK_Y * 2
+LIFE_CHANCE = 0.25
 
 
 class Point:
@@ -90,7 +90,7 @@ class Chunk:
 
 class Game:
     def __init__(self):
-        self.pos = Point(CHUNK_X // 2, CHUNK_Y // 2)
+        self.pos = Point(0, 0)
         self.grid = keydefaultdict(lambda k: Chunk(self, Point(k[0], k[1])))
         self.update()
 
