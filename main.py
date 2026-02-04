@@ -6,9 +6,9 @@ from writer import Writer
 
 DELAY = 0.5
 
+os.system('cls' if os.name == 'nt' else 'clear')
 game = Game()
 Writer.draw(game)
-os.system('cls' if os.name == 'nt' else 'clear')
 
 while (True):
     time.sleep(DELAY)
