@@ -1,7 +1,6 @@
 import random
 from enum import StrEnum
 from keydefaultdict import keydefaultdict
-from copy import copy
 
 
 CHUNK_Y = 40
@@ -100,6 +99,6 @@ class Game:
         chunk = Point(self.pos.x // CHUNK_X, self.pos.y // CHUNK_Y)
         for y in range(chunk.y - 1, chunk.y + 2):
             for x in range(chunk.x - 1, chunk.x + 2):
-                self.grid[x, y].update(self, Point(x, y), True)
+                self.grid[x, y].update(self, Point(x * CHUNK_X, y * CHUNK_Y), True)
 
         self.grid.update(grid)

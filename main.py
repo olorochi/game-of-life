@@ -11,5 +11,6 @@ Writer.draw(game)
 
 while (True):
     time.sleep(DELAY)
+    game.pos.x += 1
     game.update()
     Writer.draw(game)
