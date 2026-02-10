@@ -39,7 +39,7 @@ def input_thr():
         elif c in ['l', 'd']:
             pt = Point(1, 0)
         else:
-            return
+            continue
 
         evs.put(InputEvent(pt))
 
