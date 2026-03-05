@@ -41,18 +41,18 @@ class Chunk:
         colors = list(Color)
         wgts = [len(colors) - 1 if c == Color.BLACK else LIFE_CHANCE for c in colors]
         self.grid = [[Cell(c) for c in random.choices(colors, wgts, k=CHUNK_X)] for _ in range(CHUNK_Y)]
-        self.update(parent, offset, False)
+        # self.update(parent, offset, False)
 
     def __getitem__(self, pos):
         return self.grid[pos.y][pos.x]
 
-    def update(self, parent, offset, spill):
+    def update(self, parent, offset):
         # starting with all dead means we don't have to kill cells manually
         grid = [[Cell(Color.BLACK) for _ in self.grid[0]] for _ in self.grid]
 
         for y, row in enumerate(self.grid):
             for x, it in enumerate(row):
-                color, n = self.query_neighbors(parent, x + offset.x, y + offset.y, spill)
+                color, n = self.query_neighbors(parent, x + offset.x, y + offset.y)
                 if (n == 2 and it.alive()):
                     grid[y][x] = it  # We won't mutate this cell so we can reuse the memory
                 elif (n == 3):
@@ -60,30 +60,14 @@ class Chunk:
 
         self.grid = grid
 
-    # Spill decides wether or not to consider cells of neighboring chunks.
-    # This makes the logic around initialization simpler than checking for
-    # boundaries. If an update triggers a chunk to initialize, simply pass
-    # False and it will not cascade infinitely. This comes at the minor
-    # cost of incoherent seams around invisible chunk edges, which could
-    # be moved into frame before they are updated again.
-    def query_neighbors(self, parent, x, y, spill):
+    def query_neighbors(self, parent, x, y):
         colors = dict((c, 0) for c in list(Color))
 
-        # should probably be rewritten
-        if spill:
-            for row in range(y - 1, y + 2):
-                for col in range(x - 1, x + 2, 2 if y == row else 1):
-                    it = parent[Point(col, row)]
-                    if (it.alive()):
-                        colors[it.color] += 1
-        else:
-            x %= CHUNK_X
-            y %= CHUNK_Y
-            for row in range(max(y - 1, 0), min(y + 2, CHUNK_Y)):
-                for col in range(max(x - 1, 0), min(x + 2, CHUNK_X), 2 if y == row else 1):
-                    it = self[Point(col, row)]
-                    if (it.alive()):
-                        colors[it.color] += 1
+        for row in range(y - 1, y + 2):
+            for col in range(x - 1, x + 2, 2 if y == row else 1):
+                it = parent[Point(col, row)]
+                if (it.alive()):
+                    colors[it.color] += 1
 
         n = sum(colors.values())
         high = max(colors.values())
@@ -108,6 +92,6 @@ class Game:
         chunk = Point(self.pos.x // CHUNK_X, self.pos.y // CHUNK_Y)
         for y in range(chunk.y - 1, chunk.y + 2):
             for x in range(chunk.x - 1, chunk.x + 2):
-                self.grid[x, y].update(self, Point(x * CHUNK_X, y * CHUNK_Y), True)
+                self.grid[x, y].update(self, Point(x * CHUNK_X, y * CHUNK_Y))
 
         self.grid.update(grid)
