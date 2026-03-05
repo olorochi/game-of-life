@@ -1,6 +1,8 @@
 import random
+import threading
 from enum import StrEnum
 from keydefaultdict import keydefaultdict
+from event import Event, EventType
 
 
 CHUNK_Y = 40
@@ -76,17 +78,20 @@ class Chunk:
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, main_events):
         self.pos = Point(0, 0)
         self.grid = keydefaultdict(lambda k: Chunk(self, Point(k[0], k[1])))
-        self.update()
+        self.__main_events = main_events
+        self.__awaiting = threading.Event()
+        updater = threading.Thread(target=self.__scheduler)
+        updater.start()
 
     def __getitem__(self, pos):
         div = Point(pos.x // CHUNK_X, pos.y // CHUNK_Y)
         rem = Point(pos.x - div.x * CHUNK_X, pos.y - div.y * CHUNK_Y)
         return self.grid[div.x, div.y][rem]
 
-    def update(self):
+    def __ensure_valid(self):
         grid = {}
 
         chunk = Point(self.pos.x // CHUNK_X, self.pos.y // CHUNK_Y)
@@ -95,3 +100,17 @@ class Game:
                 self.grid[x, y].update(self, Point(x * CHUNK_X, y * CHUNK_Y))
 
         self.grid.update(grid)
+
+    def __bg_update(self):
+        pass
+
+    def __scheduler(self):
+        while True:
+            if (self.__awaiting.is_set()):
+                self.__ensure_valid()
+                self.__main_events.put(Event(EventType.UPDATED))
+            else:
+                self.__bg_update()
+
+    def get_update(self):
+        self.__awaiting.set()

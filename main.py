@@ -4,27 +4,11 @@ import threading
 from game import Game, Point
 from writer import Writer
 from queue import Queue
-from enum import Enum, auto
 from getch import getch
+from event import Event, EventType, InputEvent
 
 
 DELAY = 0.5
-
-
-class EventType(Enum):
-    INPUT = auto(),
-    UPDATE = auto()
-
-
-class Event:
-    def __init__(self, evtype):
-        self.type = evtype
-
-
-class InputEvent(Event):
-    def __init__(self, vec):
-        Event.__init__(self, EventType.INPUT)
-        self.vec = vec
 
 
 def input_thr():
@@ -41,27 +25,28 @@ def input_thr():
         else:
             continue
 
-        evs.put(InputEvent(pt))
+        events.put(InputEvent(pt))
 
 
 def update_thr():
     while True:
-        evs.put(Event(EventType.UPDATE))
+        events.put(Event(EventType.UPDATE))
         time.sleep(DELAY)
 
 
 os.system('cls' if os.name == 'nt' else 'clear')
-game = Game()
-evs = Queue()
+events = Queue()
+game = Game(events)
 for fn in [input_thr, update_thr]:
     thr = threading.Thread(target=fn)
     thr.start()
 
 while True:
-    ev = evs.get()
+    ev = events.get()
     if (ev.type == EventType.INPUT):
         game.pos += ev.vec
-    else:
-        game.update()
-
-    Writer.draw(game)
+        Writer.draw(game)
+    elif (ev.type == EventType.UPDATE):
+        game.get_update()
+    else:  # EventType.UPDATED
+        Writer.draw(game)
