@@ -1,10 +1,11 @@
 import time
 import os
+import sys
+import tty
 import threading
 from enum import StrEnum
 from game import CHUNK_X, CHUNK_Y, Point, Game
 from queue import Queue
-from getch import getch
 from event import Event, EventType, InputEvent
 
 
@@ -14,6 +15,13 @@ DELAY = 0.5
 class ANSI(StrEnum):
     NO_STYLE = '\033[0m'
     HOME = '\033[H'
+
+
+def getch():
+    fd = sys.stdin.fileno()
+    tty.setcbreak(fd)
+    ch = sys.stdin.read(1)
+    return ch
 
 
 def input_thr():
@@ -50,7 +58,7 @@ def draw(game):
     print(ANSI.NO_STYLE, end='')
 
 
-os.system('cls' if os.name == 'nt' else 'clear')
+os.system('clear')
 events = Queue()
 game = Game(events)
 for fn in [input_thr, update_thr]:
