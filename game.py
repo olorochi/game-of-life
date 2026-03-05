@@ -54,12 +54,18 @@ class Chunk:
             for x, it in enumerate(row):
                 color, n = self.query_neighbors(parent, x + offset.x, y + offset.y, spill)
                 if (n == 2 and it.alive()):
-                    grid[y][x] = it
+                    grid[y][x] = it  # We won't mutate this cell so we can reuse the memory
                 elif (n == 3):
                     grid[y][x].color = color
 
         self.grid = grid
 
+    # Spill decides wether or not to consider cells of neighboring chunks.
+    # This makes the logic around initialization simpler than checking for
+    # boundaries. If an update triggers a chunk to initialize, simply pass
+    # False and it will not cascade infinitely. This comes at the minor
+    # cost of incoherent seams around invisible chunk edges, which could
+    # be moved into frame before they are updated again.
     def query_neighbors(self, parent, x, y, spill):
         colors = dict((c, 0) for c in list(Color))
 
