@@ -1,14 +1,19 @@
 import time
 import os
 import threading
-from game import Game, Point
-from writer import Writer
+from enum import StrEnum
+from game import CHUNK_X, CHUNK_Y, Point, Game
 from queue import Queue
 from getch import getch
 from event import Event, EventType, InputEvent
 
 
 DELAY = 0.5
+
+
+class ANSI(StrEnum):
+    NO_STYLE = '\033[0m'
+    HOME = '\033[H'
 
 
 def input_thr():
@@ -34,6 +39,17 @@ def update_thr():
         time.sleep(DELAY)
 
 
+def draw(game):
+    print(ANSI.HOME, end='')
+    half_y = CHUNK_Y // 2
+    half_x = CHUNK_X // 2
+    for y in range(game.pos.y - half_y, game.pos.y + half_y):
+        for x in range(game.pos.x - half_x, game.pos.x + half_x):
+            print(game[Point(x, y)].color, 'X', sep='', end='')
+        print()
+    print(ANSI.NO_STYLE, end='')
+
+
 os.system('cls' if os.name == 'nt' else 'clear')
 events = Queue()
 game = Game(events)
@@ -45,8 +61,8 @@ while True:
     ev = events.get()
     if (ev.type == EventType.INPUT):
         game.pos += ev.vec
-        Writer.draw(game)
+        draw(game)
     elif (ev.type == EventType.UPDATE):
         game.get_update()
     else:  # EventType.UPDATED
-        Writer.draw(game)
+        draw(game)
